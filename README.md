@@ -1,3 +1,3 @@
 # fyp-server
 
-This is a testing server 2
+This is a testing server
