@@ -11,7 +11,13 @@
 using namespace libsnark;
 using namespace std;
 
-int main()
+#if defined(WIN32) || defined(_WIN32)
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT
+#endif
+
+extern "C" EXPORT bool testlib()
 {
   typedef libff::Fr<default_r1cs_ppzksnark_pp> FieldT;
 
@@ -85,5 +91,5 @@ int main()
   print_vk_to_file<default_r1cs_ppzksnark_pp>(vk, "../build/vk_data");
   print_proof_to_file<default_r1cs_ppzksnark_pp>(proof, "../build/proof_data");
 
-  return 0;
+  return verified;
 }

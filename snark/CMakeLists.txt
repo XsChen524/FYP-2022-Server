@@ -72,7 +72,7 @@ if("${MULTICORE}")
   add_definitions(-DMULTICORE=1)
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OPT_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OPT_FLAGS} -fPIC")
 
 include(FindPkgConfig)
 if("${WITH_PROCPS}")
