@@ -1,79 +1,9 @@
-var createError = require('http-errors');
 var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var ejs = require('ejs');
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const bodyParser = require("body-parser");
-const mysql = require('mysql');
-const crypto = require('crypto');
-var session = require('express-session');
-var MySQLStore = require('express-mysql-session')(session);
+var passport = require('passport');
+var LocalStrategy = require('passport-local');
+var crypto = require('crypto');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var snarkRouter = require('./routes/snark');
-var adminRouter = require('./routes/admin');
-
-var app = express();
-
-app.use(session({
-    key: 'session_cookie_name',
-    secret: 'session_cookie_secret',
-    store: new MySQLStore({
-        host: 'localhost',
-        port: 3306,
-        user: 'root',
-        password: 'a05402292fff73df',
-        database: 'fyp-database'
-    }),
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        maxAge: 1000 * 60 * 60 * 24,
-    }
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.engine('.html', ejs.__express);
-app.set('view engine', 'ejs');
-//app.set('view engine', 'jade');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-
-/* MySQL Connection */
-var connection = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: 'a05402292fff73df',
-    database: "fyp-database",
-    multipleStatements: true
-});
-connection.connect((err) => {
-    if (!err) {
-        console.log("Connected");
-    } else {
-        console.log("Conection Failed");
-    }
-});
-const customFields = {
-    usernameField: 'uname',
-    passwordField: 'pw',
-};
+var router = express.Router();
 
 /*Passport JS*/
 const verifyCallback = (username, password, done) => {
@@ -94,12 +24,16 @@ const verifyCallback = (username, password, done) => {
         }
     });
 }
+
 const strategy = new LocalStrategy(customFields, verifyCallback);
 passport.use(strategy);
+
+
 passport.serializeUser((user, done) => {
     console.log("inside serialize");
     done(null, user.id)
 });
+
 passport.deserializeUser(function(userId, done) {
     console.log('deserializeUser' + userId);
     connection.query('SELECT * FROM users where id = ?', [userId], function(error, results) {
@@ -107,7 +41,8 @@ passport.deserializeUser(function(userId, done) {
     });
 });
 
-/*Auth middleware*/
+
+/*middleware*/
 function validPassword(password, hash, salt) {
     var hashVerify = crypto.pbkdf2Sync(password, salt, 10000, 60, 'sha512').toString('hex');
     return hash === hashVerify;
@@ -119,6 +54,7 @@ function genPassword(password) {
     return { salt: salt, hash: genhash };
 }
 
+
 function isAuth(req, res, next) {
     if (req.isAuthenticated()) {
         next();
@@ -126,6 +62,7 @@ function isAuth(req, res, next) {
         res.redirect('/notAuthorized');
     }
 }
+
 
 function isAdmin(req, res, next) {
     if (req.isAuthenticated() && req.user.isAdmin == 1) {
@@ -147,36 +84,29 @@ function userExists(req, res, next) {
     });
 }
 
-//Print session in console
-app.use((req, res, next) => {
-    console.log(req.session);
-    console.log(req.user);
-    next();
+router.get('/login', function(req, res, next) {
+    res.render('login');
 });
 
-app.use('/admin', adminRouter);
-app.use('/', indexRouter);
-
-/* Auth routers */
-app.get('/login', (req, res, next) => {
-    res.render('login')
-});
-app.get('/logout', (req, res, next) => {
+router.get('/logout', (req, res, next) => {
     req.logout(); //delets the user from the session
     res.redirect('/protected-route');
 });
-app.get('/login-success', (req, res, next) => {
+router.get('/login-success', (req, res, next) => {
     res.send('<p>You successfully logged in. --> <a href="/protected-route">Go to protected route</a></p>');
 });
-app.get('/login-failure', (req, res, next) => {
+
+router.get('/login-failure', (req, res, next) => {
     res.send('You entered the wrong password.');
 });
-app.get('/register', (req, res, next) => {
+
+router.get('/register', (req, res, next) => {
     console.log("Inside get");
     res.render('register')
 
 });
-app.post('/register', userExists, (req, res, next) => {
+
+router.post('/register', userExists, (req, res, next) => {
     console.log("Inside post");
     console.log(req.body.pw);
     const saltHash = genPassword(req.body.pw);
@@ -195,44 +125,40 @@ app.post('/register', userExists, (req, res, next) => {
 
     res.redirect('/login');
 });
-app.post('/login', passport.authenticate('local', { failureRedirect: '/login-failure', successRedirect: '/login-success' }));
-app.get('/protected-route', isAuth, (req, res, next) => {
+
+router.post('/login',
+    passport.authenticate('local', {
+        failureRedirect: '/login-failure',
+        successRedirect: '/login-success'
+    })
+);
+
+router.get('/protected-route', isAuth, (req, res, next) => {
+
     res.send('<h1>You are authenticated</h1><p><a href="/logout">Logout and reload</a></p>');
 });
-app.get('/admin-route', isAdmin, (req, res, next) => {
+
+router.get('/admin-route', isAdmin, (req, res, next) => {
+
     res.send('<h1>You are admin</h1><p><a href="/logout">Logout and reload</a></p>');
+
 });
-app.get('/notAuthorized', (req, res, next) => {
+
+router.get('/notAuthorized', (req, res, next) => {
     console.log("Inside get");
     res.send('<h1>You are not authorized to view the resource </h1><p><a href="/login">Retry Login</a></p>');
+
 });
-app.get('/notAuthorizedAdmin', (req, res, next) => {
+router.get('/notAuthorizedAdmin', (req, res, next) => {
     console.log("Inside get");
     res.send('<h1>You are not authorized to view the resource as you are not the admin of the page  </h1><p><a href="/login">Retry to Login as admin</a></p>');
+
 });
-app.get('/userAlreadyExists', (req, res, next) => {
+router.get('/userAlreadyExists', (req, res, next) => {
     console.log("Inside get");
     res.send('<h1>Sorry This username is taken </h1><p><a href="/register">Register with different username</a></p>');
+
 });
 
-/* Protected routes */
-app.use('/users', isAuth, usersRouter);
-app.use('/snark', isAuth, snarkRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-    next(createError(404));
-});
-
-// error handler
-app.use(function(err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-    // render the error page
-    res.status(err.status || 500);
-    res.render('error');
-});
-
-module.exports = app;
+module.exports = router;
