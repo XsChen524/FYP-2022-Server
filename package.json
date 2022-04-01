@@ -1,36 +1,42 @@
 {
-  "name": "fyp",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node ./bin/www"
-  },
-  "dependencies": {
-    "@adminjs/express": "^4.1.0",
-    "adminjs": "^5.7.5",
-    "antd": "^4.19.3",
-    "body-parser": "^1.19.2",
-    "cookie-parser": "~1.4.4",
-    "crypto": "^1.0.1",
-    "debug": "~2.6.9",
-    "ejs": "^3.1.6",
-    "express": "~4.16.1",
-    "express-formidable": "^1.2.0",
-    "express-mysql-session": "^2.1.7",
-    "express-session": "^1.17.2",
-    "ffi-napi": "^4.0.3",
-    "http-errors": "~1.6.3",
-    "jade": "^0.29.0",
-    "morgan": "~1.9.1",
-    "mysql": "^2.18.1",
-    "mysql2": "^2.3.3",
-    "node-gyp": "^9.0.0",
-    "nodemon": "^2.0.15",
-    "passport": "^0.5.2",
-    "passport-local": "^1.0.0",
-    "sequelize": "^6.17.0"
-  },
-  "devDependencies": {
-    "electron": "^17.1.2"
-  }
+    "name": "fyp",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "start": "node ./bin/www"
+    },
+    "dependencies": {
+        "@adminjs/express": "^4.1.0",
+        "@babel/preset-react": "^7.16.7",
+        "adminjs": "^5.7.5",
+        "antd": "^4.19.3",
+        "body-parser": "^1.19.2",
+        "cookie-parser": "~1.4.4",
+        "crypto": "^1.0.1",
+        "debug": "~2.6.9",
+        "ejs": "^3.1.6",
+        "express": "~4.16.1",
+        "express-formidable": "^1.2.0",
+        "express-mysql-session": "^2.1.7",
+        "express-session": "^1.17.2",
+        "ffi-napi": "^4.0.3",
+        "http-errors": "~1.6.3",
+        "jade": "^0.29.0",
+        "moment": "^2.29.1",
+        "morgan": "~1.9.1",
+        "mysql": "^2.18.1",
+        "mysql2": "^2.3.3",
+        "node-gyp": "^9.0.0",
+        "nodemon": "^2.0.15",
+        "passport": "^0.5.2",
+        "passport-local": "^1.0.0",
+        "react": "^18.0.0",
+        "react-dom": "^18.0.0",
+        "sequelize": "^6.17.0"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-preset-react": "^6.24.1",
+        "electron": "^17.1.2"
+    }
 }

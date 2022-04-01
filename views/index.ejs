@@ -1,21 +1,12 @@
-<!DOCTYPE html>
-<html>
+<%- include('templates/head', {title: 'Home'}); -%>
 
-<head>
-    <title>
-        <%= title %>
-    </title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-</head>
+    <script type="text/babel" src="javascripts/components/header.js"></script>
+    <script type="text/babel" src="javascripts/index.js"></script>
+    </head>
 
-<body>
-    <h1>
-        <%= title %>
-    </h1>
-    <p>Welcome to
-        <%= title %>
-    </p>
-    <p>This is ejs template</p>
-</body>
+    <body>
+        <div id="antHeader"></div>
+        <div id="root"></div>
+    </body>
 
-</html>
+    </html>
