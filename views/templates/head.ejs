@@ -28,3 +28,22 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/antd/4.19.4/antd.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/4.19.4/antd.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/ant-design-icons/dist/anticons.min.css" rel="stylesheet">
+
+    <script>
+        var isSignedIn = false;
+    </script>
+
+    <% if (user) { %>
+        <script>
+            isSignedIn = true;
+            var userId = '<%= user.id %>';
+            var userName = '<%= user.username%>';
+            console.log(isSignedIn);
+            console.log(userId);
+            console.log(userName);
+        </script>
+        <% } %>
+
+            <!-- Header and footer -->
+            <script type="text/babel" src="javascripts/components/header.js"></script>
+            <script type="text/babel" src="javascripts/components/footer.js"></script>

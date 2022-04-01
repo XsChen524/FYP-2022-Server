@@ -2,18 +2,23 @@ class App extends React.Component {
     render() {
         return (
             <antd.Layout className="layout">
-                <antd.Layout.Content style={{ padding: '0 50px' }}>
-                    <antd.Breadcrumb style={{ margin: '16px 0' }}>
-                        <antd.Breadcrumb.Item>Home</antd.Breadcrumb.Item>
-                        <antd.Breadcrumb.Item>List</antd.Breadcrumb.Item>
-                        <antd.Breadcrumb.Item>App</antd.Breadcrumb.Item>
-                    </antd.Breadcrumb>
-                    <div className="site-layout-content">Content</div>
+                <antd.Layout.Content
+                    style={{
+                        padding: '20px',
+                    }}
+                >
+                    <antd.Row>
+                        <antd.Col>
+                            <div classname="site-layout-content">
+                                <h1>Welcome</h1>
+                                <h3>This is Final Year Project of fyp21025</h3>
+                            </div>
+                        </antd.Col>
+                    </antd.Row>
                 </antd.Layout.Content>
-                <antd.Layout.Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</antd.Layout.Footer>
             </antd.Layout>
         );
     }
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App/>, document.getElementById('root'));
