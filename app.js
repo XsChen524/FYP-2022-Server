@@ -151,13 +151,13 @@ app.get('/login', (req, res, next) => {
 });
 app.get('/logout', (req, res, next) => {
     req.logout(); //delets the user from the session
-    res.redirect('/protected-route');
+    res.redirect('/');
 });
 app.get('/login-success', (req, res, next) => {
-    res.send('<p>You successfully logged in. --> <a href="/protected-route">Go to protected route</a></p>');
+    res.redirect('/');
 });
 app.get('/login-failure', (req, res, next) => {
-    res.send('You entered the wrong password.');
+    res.redirect('/login');
 });
 app.get('/register', (req, res, next) => {
     res.render('auth/register')

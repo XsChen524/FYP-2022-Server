@@ -1,0 +1,14 @@
+.site-layout-content {
+    min-height: 600px;
+    padding: 24px;
+    margin: 50px;
+    /*
+    background: #fff;
+    */
+}
+
+.flowControlCol {
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+}
