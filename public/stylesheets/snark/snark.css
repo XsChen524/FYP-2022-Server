@@ -10,5 +10,14 @@
 .flowControlCol {
     width: 100%;
     height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#flowControlContainer {
+    min-height: 600px;
+    border: 2px;
+    border-radius: 10px;
     background-color: #ffffff;
 }

@@ -9,7 +9,7 @@ const testDll = ffi.Library(path.resolve('snark/build/src/libtest'), {
 });
 
 exports.index = (req, res) => {
-    res.render('snark', { content: "snark page" });
+    res.render('snarkViews/snark', { content: "snark page" });
 }
 
 var test = (req, res) => {
