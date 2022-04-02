@@ -4,4 +4,6 @@ var router = express.Router();
 
 router.get('/', snarkController.index);
 
+router.get('/store-secret-string', snarkController.StoreSecretStr);
+
 module.exports = router;

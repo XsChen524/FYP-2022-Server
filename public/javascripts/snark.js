@@ -4,6 +4,11 @@
  * @param userName
  */
 
+/**
+ * Generate random string with fixed length
+ * @param {int} length length of random string
+ * @returns random string
+ */
 function randomString(length) {
     var str = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     var result = '';
@@ -12,6 +17,53 @@ function randomString(length) {
     return result;
 }
 
+/**
+ * JQuery get /snark/store-secret-string to store the secret string into Redis
+ * @param {int} id userId
+ * @param {String} secStr secret string
+ */
+function StoreQrInfo(id, secStr) {
+    $.get('/snark/store-secret-string?userId=' + id + '&secStr=' + secStr, function (data) {
+        console.log(data);
+    })
+}
+
+/**
+ * Generate the content of QR Code, in JSON format,
+ * Call StoreQrInfo to store Secret String into Redis
+ * @returns {String} qrJson Json to generate QRcode
+ */
+function GenerateQrCodeJson() {
+    var qrObject = new Object();
+    qrObject.userId = userId;
+    qrObject.userName = userName;
+    qrObject.secStr = randomString(20);
+
+    StoreQrInfo(userId, qrObject.secStr);
+
+    var qrJson = JSON.stringify(qrObject);
+    console.log(qrJson);
+    return qrJson;
+}
+
+/**
+ * Render QRcode component
+ */
+function GenerateQrCode() {
+    var qrcode = new QRCode(document.getElementById("qrcode"), {
+        text: GenerateQrCodeJson(),
+        width: 200,
+        height: 200,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+}
+
+/**
+ * Render flow control components
+ * @returns react component
+ */
 function StepControl() {
     return (
         <div>
@@ -24,26 +76,6 @@ function StepControl() {
     );
 }
 
-function GenerateQrCodeJson() {
-    var qrObject = new Object();
-    qrObject.userId = userId;
-    qrObject.userName = userName;
-    qrObject.secStr = randomString(20);
-    var qrJson = JSON.stringify(qrObject);
-    console.log(qrJson);
-    return qrJson;
-}
-
-function GenerateQrCode() {
-    var qrcode = new QRCode(document.getElementById("qrcode"), {
-        text: GenerateQrCodeJson(),
-        width: 200,
-        height: 200,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-    });
-}
 
 class App extends React.Component {
     render() {
@@ -58,9 +90,18 @@ class App extends React.Component {
                                     <StepControl/>
                                 </div>
                             </antd.Col>
-                            <antd.Col span={12}>
-                                <div id="qrcode" className="flowControlCol">
-
+                            <antd.Col span={12} id="right-antd-col">
+                                <div>
+                                    <antd.Row id='qrcode-row'>
+                                        <antd.Col>
+                                            <div id='qrcode'></div>
+                                        </antd.Col>
+                                    </antd.Row>
+                                    <antd.Row id='alert-row'>
+                                        <antd.Col>
+                                            <antd.Alert id='alert' message="QR Code will expire in 30 minutes." type="warning" />
+                                        </antd.Col>
+                                    </antd.Row>
                                 </div>
                             </antd.Col>
                         </antd.Row>
