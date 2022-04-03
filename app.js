@@ -27,7 +27,7 @@ app.use(session({
         host: 'localhost',
         port: 3306,
         user: 'root',
-        password: 'a05402292fff73df',
+        password: '9ac8bec89ac9edf4',
         database: 'fyp-database'
     }),
     resave: false,
@@ -59,7 +59,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 var connection = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: 'a05402292fff73df',
+    password: '9ac8bec89ac9edf4',
     database: "fyp-database",
     multipleStatements: true
 });

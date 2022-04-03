@@ -61,6 +61,13 @@ function GenerateQrCode() {
 }
 
 /**
+ * Get the scanning status repeatly
+ */
+/*
+function CheckScanningStatus (){}
+*/
+
+/**
  * Render flow control components
  * @returns react component
  */
