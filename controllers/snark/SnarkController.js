@@ -9,17 +9,6 @@ const testDll = ffi.Library(path.resolve('snark/build/src/libtest'), {
     ],
 });
 
-function testRedis() {
-    (async() => {
-        const client = redis.createClient();
-        client.on('error', (err) => console.log('Redis Client Error', err));
-        await client.connect();
-        await client.set('key', 'value');
-        const value = await client.get('key');
-        console.log(value);
-    })();
-}
-
 var test = (req, res) => {
     testRedis();
     testDBFunction();
@@ -48,11 +37,11 @@ exports.StoreSecretStr = (req, res) => {
                 isScanned: false
             });
             await client.expire(userId, 1800);
+            client.quit();
         } catch (err) {
             console.log(err);
         }
     })();
-
     res.send(JSON.stringify({ 'status': 'succeed', 'userId': userId, 'secStr': secStr }));
 }
 
@@ -80,6 +69,7 @@ exports.MobileScanQr = (req, res) => {
                             await client.HSET(userId, {
                                 isScanned: true
                             });
+                            client.quit()
                             res.send(JSON.stringify({ status: true }));
                         }
                     })();
@@ -89,6 +79,39 @@ exports.MobileScanQr = (req, res) => {
     }
 }
 
+/**
+ * Send by browser repeatedly, to check whether the qrcode is scanned
+ * @param {*} req 
+ * @param {*} res JSON, {isScanned: true} if the qrcode has been scanned
+ */
+exports.CheckScanQrCode = (req, res) => {
+    var userId = req.query.userId;
+
+    (async() => {
+        const client = redis.createClient();
+        client.on('error', (err) => console.log('Redis Client Error', err));
+        await client.connect();
+        try {
+            //Check whether isScanned is true
+            client.hGetAll(userId).then(
+                (userObj) => {
+                    if (userObj.isScanned == 'true') {
+                        res.send(JSON.stringify({ isScanned: true }));
+                    } else {
+                        res.send(JSON.stringify({ isScanned: false }))
+                    }
+                }
+            );
+        } catch (err) {
+            console.log(err);
+        }
+    })();
+}
+
 exports.index = (req, res) => {
     res.render('snarkViews/snark', { content: "snark page" });
+}
+
+exports.Result = (req, res) => {
+    res.render('snarkViews/snarkResult', { content: 'snark result' });
 }

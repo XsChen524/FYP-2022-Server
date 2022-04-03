@@ -18,6 +18,25 @@ function randomString(length) {
 }
 
 /**
+ * Get the scanning status repeatly
+ */
+
+function CheckScanningStatus(userId) {
+    const timer = window.setInterval(CheckStatusOnce, 1000);
+
+    function CheckStatusOnce() {
+        $.get('/snark/check-scan-qr-code?userId=' + userId, function (dataJson) {
+            var data = JSON.parse(dataJson);
+            if (data.isScanned == true) {
+                //If the qr has been scanned, redirect to next page
+                clearInterval(timer);
+                window.location.replace('/snark/result');
+            }
+        })
+    }
+}
+
+/**
  * JQuery get /snark/store-secret-string to store the secret string into Redis
  * @param {int} id userId
  * @param {String} secStr secret string
@@ -25,6 +44,7 @@ function randomString(length) {
 function StoreQrInfo(id, secStr) {
     $.get('/snark/store-secret-string?userId=' + id + '&secStr=' + secStr, function (data) {
         console.log(data);
+        CheckScanningStatus(id);
     })
 }
 
@@ -59,13 +79,6 @@ function GenerateQrCode() {
         correctLevel: QRCode.CorrectLevel.H
     });
 }
-
-/**
- * Get the scanning status repeatly
- */
-/*
-function CheckScanningStatus (){}
-*/
 
 /**
  * Render flow control components
