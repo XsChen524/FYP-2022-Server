@@ -16,6 +16,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var snarkRouter = require('./routes/snark');
 var adminRouter = require('./routes/admin');
+var apiRouter = require('./routes/api');
 
 var app = express();
 
@@ -195,6 +196,8 @@ app.get('/userAlreadyExists', (req, res, next) => {
 /* Protected routes */
 app.use('/users', isAuth, usersRouter);
 app.use('/snark', isAuth, snarkRouter);
+
+app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
