@@ -9,7 +9,7 @@ const testDll = ffi.Library(path.resolve('snark/build/src/libcertificate.so'), {
         'string', ['int', 'string', 'string'],
     ],
     'VerifyProof': [
-        'bool', ['int', 'char *', 'char *'],
+        'bool', ['int', 'string', 'string'],
     ]
 });
 
@@ -24,7 +24,7 @@ exports.TestSnark = (req, res) => {
         var rootHash = await testDll.GenerateProof(1, 'secStr', 'randomkey');
         console.log(rootHash);
         (async() => {
-            var isVerified = await testDll.VerifyProof(1, 'randomkey', rootHash.toString());
+            var isVerified = await testDll.VerifyProof(1, 'randomkey', rootHash);
             console.log(isVerified);
             res.send(isVerified);
         })();
