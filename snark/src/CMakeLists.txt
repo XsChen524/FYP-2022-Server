@@ -20,6 +20,7 @@ target_include_directories(
   ${DEPENDS_DIR}/libsnark/depends/libff
 )
 
+#[[
 add_executable(
   main
 
@@ -39,3 +40,4 @@ target_include_directories(
   ${DEPENDS_DIR}/libsnark/depends/libfqfft
   ${DEPENDS_DIR}/libsnark/depends/libff
 )
+]]

@@ -1,5 +1,7 @@
 #define CURVE_ALT_BN128
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -222,7 +224,8 @@ std::string strRand() {
  * @param randomKey 
  * @return std::string rootStr
  */
-std::string GenerateProof(std::string secStr, std::string randomKey){
+
+char* GenerateProof(int userId, char* secStr, char* randomKey){
 
     //define the finite field where all our values live, and initialize the curve parameters
     libff::default_ec_pp::init_public_params();        
@@ -253,7 +256,14 @@ std::string GenerateProof(std::string secStr, std::string randomKey){
         
     /*Set up progress, trust set up*/
     auto keypair = generate_read_keypair<ppzksnark_ppT, FieldT, HashT>(tree_depth); //generate the proving key and verifying key
-    std::fstream verifing_key("merkle_vk.raw", std::ios_base::out);
+
+    char vkName[200];
+    char proofName[200];
+
+    sprintf(vkName, "%s%d%s", "rawdata/merkle_vk_", userId, ".raw");
+    sprintf(proofName, "%s%d%s", "rawdata/proof_", userId, ".raw");
+
+    std::fstream verifing_key(vkName, std::ios_base::out);
     verifing_key << keypair.vk;
     verifing_key.close();
     
@@ -345,11 +355,13 @@ std::string GenerateProof(std::string secStr, std::string randomKey){
     }
 
     //Save the proof
-    std::fstream pr("proof.raw", std::ios_base::out);
+    std::fstream pr(proofName, std::ios_base::out);
     pr << (*proof);
     pr.close();
 
-    return *binToHex<HashT>(root);
+    char* returnCStr = const_cast<char*>(strdup((*binToHex<HashT>(root)).c_str()));
+
+    return returnCStr;
 
     //Store the root
     /*  Below part store root in txt file
@@ -372,19 +384,25 @@ std::string GenerateProof(std::string secStr, std::string randomKey){
     */
 }
 
-bool VerifyProof (std::string randomKey, std::string rootStr){
+bool VerifyProof (int userId, char* randomKey, char* rootStr){
+    std::string rootString = rootStr;
     libff::default_ec_pp::init_public_params();        
     typedef libff::default_ec_pp ppzksnark_ppT;
     typedef libff::Fr<ppzksnark_ppT> FieldT;
     typedef sha256_two_to_one_hash_gadget<FieldT> HashT;
 
-    std::fstream pr("proof.raw", std::ios_base::in);
+    char vkfName[200];
+    char proofName[200];
+    sprintf(vkfName, "%s%d%s", "rawdata/merkle_vk_", userId, ".raw");
+    sprintf(proofName, "%s%d%s", "rawdata/proof_", userId, ".raw");
+
+    std::fstream pr(proofName, std::ios_base::in);
     r1cs_gg_ppzksnark_proof<ppzksnark_ppT> proof;
     pr >> proof;
     pr.close();
     
     //load vk
-    std::fstream vkf("merkle_vk.raw", std::ios_base::in);
+    std::fstream vkf(vkfName, std::ios_base::in);
     r1cs_gg_ppzksnark_verification_key<ppzksnark_ppT> vk;
     vkf >> vk;
     vkf.close();
@@ -403,7 +421,7 @@ bool VerifyProof (std::string randomKey, std::string rootStr){
     libff::bit_vector rk_bv = hash256<HashT>(randomKey);
     //std::cout << "rk_bv is " << *binToHex<HashT>(rk_bv) << std::endl;
 
-    libff::bit_vector root = hexToBin(rootStr);
+    libff::bit_vector root = hexToBin(rootString);
 
     //verify the proof, root and rk_bv is public knowledge, signed by server
 

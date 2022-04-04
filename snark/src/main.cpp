@@ -6,10 +6,10 @@
 using namespace std;
 
 int main(){
-    std::string rootHash = GenerateProof("secret", "randomkey");
-    bool isVerified = VerifyProof("randomkey", rootHash);
+    char* rootHash = GenerateProof(1, "secret", "randomkey");
+    cout << "root hash is: " << rootHash << endl;
 
+    bool isVerified = VerifyProof(1, "randomkey", rootHash);
     cout << "The result of sharedlib is: " << isVerified << endl;
-
     return 0;
 }

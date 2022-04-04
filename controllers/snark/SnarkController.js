@@ -5,11 +5,11 @@ var redis = require('redis');
 var ref = require('ref-napi');
 
 const testDll = ffi.Library(path.resolve('snark/build/src/libcertificate.so'), {
-    '_Z13GenerateProofNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES4_': [
-        'string', ['string', 'string'],
+    'GenerateProof': [
+        'string', ['int', 'string', 'string'],
     ],
-    '_Z11VerifyProofNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES4_': [
-        'bool', ['string', 'string'],
+    'VerifyProof': [
+        'bool', ['int', 'char *', 'char *'],
     ]
 });
 
@@ -20,10 +20,11 @@ var test = (req, res) => {
 }
 
 exports.TestSnark = (req, res) => {
-    var rootHash = testDll._Z13GenerateProofNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES4_('secret', 'randomKey');
-    var result = testDll._Z11VerifyProofNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES4_('randomKey', rootHash);
-    console.log(result);
-    res.send('testing');
+    (async() => {
+        var rootHash = await testDll.GenerateProof(1, 'secStr', 'randomkey');
+        console.log(rootHash);
+    })();
+    res.send('Hello');
 }
 
 /**

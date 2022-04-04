@@ -3,6 +3,8 @@
 
 #define CURVE_ALT_BN128
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -52,8 +54,9 @@ std::string strRand();
  * @param randomKey 
  * @return std::string rootStr
  */
-std::string GenerateProof(std::string secStr, std::string randomKey);
+extern "C"{
+    char* GenerateProof(int userId, char* secStr, char* randomKey);
 
-bool VerifyProof (std::string randomKey, std::string rootStr);
-
+    bool VerifyProof (int userId, char* randomKey, char* rootStr);
+}
 #endif
