@@ -23,8 +23,12 @@ exports.TestSnark = (req, res) => {
     (async() => {
         var rootHash = await testDll.GenerateProof(1, 'secStr', 'randomkey');
         console.log(rootHash);
+        (async() => {
+            var isVerified = await testDll.VerifyProof(1, 'randomkey', rootHash.toString());
+            console.log(isVerified);
+            res.send(isVerified);
+        })();
     })();
-    res.send('Hello');
 }
 
 /**
