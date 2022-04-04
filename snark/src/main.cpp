@@ -1,13 +1,15 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
-#include "test.h"
+#include "certificate.h"
 
 using namespace std;
 
 int main(){
-    bool varTest = testlib();
-    cout << "The result in example of sharedlib: " << varTest << endl;
+    std::string rootHash = GenerateProof("secret", "randomkey");
+    bool isVerified = VerifyProof("randomkey", rootHash);
+
+    cout << "The result of sharedlib is: " << isVerified << endl;
 
     return 0;
 }

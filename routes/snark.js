@@ -12,4 +12,6 @@ router.get('/mobile-scan-qr', snarkController.MobileScanQr);
 
 router.get('/check-scan-qr-code', snarkController.CheckScanQrCode);
 
+router.get('/test-snark', snarkController.TestSnark);
+
 module.exports = router;

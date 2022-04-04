@@ -1,38 +1,19 @@
 include_directories(.)
 
-
-add_executable(
-  test-gadget
-
-  test-gadget.cpp
-)
-target_link_libraries(
-  test-gadget
-
-  snark
-)
-target_include_directories(
-  test-gadget
-
-  PUBLIC
-  ${DEPENDS_DIR}/libsnark
-  ${DEPENDS_DIR}/libsnark/depends/libfqfft
-  ${DEPENDS_DIR}/libsnark/depends/libff
-)
-
 add_library(
-  test
+  certificate
   SHARED
-  test.cpp
+  certificate.cpp
+  merklecircuit.h
 )
 target_link_libraries(
-  test
-  
+  certificate
+
   snark
 )
 target_include_directories(
-  test
-  
+  certificate
+
   PUBLIC
   ${DEPENDS_DIR}/libsnark
   ${DEPENDS_DIR}/libsnark/depends/libfqfft
@@ -48,7 +29,7 @@ add_executable(
 target_link_libraries(
   main
 
-  test
+  certificate
 )
 target_include_directories(
   main

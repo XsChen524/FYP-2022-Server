@@ -133,7 +133,7 @@ function userExists(req, res, next) {
     });
 }
 
-//Print session in console
+//Print session in console, and get the session in res.local
 app.use((req, res, next) => {
     res.locals.user = null;
     if (req.user != undefined) {

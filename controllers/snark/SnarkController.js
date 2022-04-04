@@ -2,18 +2,28 @@ var express = require('express');
 var path = require('path');
 var ffi = require('ffi-napi');
 var redis = require('redis');
+var ref = require('ref-napi');
 
-const testDll = ffi.Library(path.resolve('snark/build/src/libtest'), {
-    'testlib': [
-        "bool", [],
+const testDll = ffi.Library(path.resolve('snark/build/src/libcertificate.so'), {
+    '_Z13GenerateProofNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES4_': [
+        'string', ['string', 'string'],
     ],
+    '_Z11VerifyProofNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES4_': [
+        'bool', ['string', 'string'],
+    ]
 });
 
 var test = (req, res) => {
-    testRedis();
     testDBFunction();
     var result = testDll.testlib();
     console.log(result);
+}
+
+exports.TestSnark = (req, res) => {
+    var rootHash = testDll._Z13GenerateProofNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES4_('secret', 'randomKey');
+    var result = testDll._Z11VerifyProofNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES4_('randomKey', rootHash);
+    console.log(result);
+    res.send('testing');
 }
 
 /**
