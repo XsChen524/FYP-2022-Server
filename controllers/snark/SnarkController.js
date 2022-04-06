@@ -3,8 +3,9 @@ var path = require('path');
 var ffi = require('ffi-napi');
 var redis = require('redis');
 var ref = require('ref-napi');
+const { info } = require('console');
 
-const testDll = ffi.Library(path.resolve('snark/build/src/libcertificate.so'), {
+const snarkDll = ffi.Library(path.resolve('snark/build/src/libcertificate.so'), {
     'GenerateProof': [
         'string', ['int', 'string', 'string'],
     ],
@@ -13,26 +14,114 @@ const testDll = ffi.Library(path.resolve('snark/build/src/libcertificate.so'), {
     ]
 });
 
-var test = (req, res) => {
-    testDBFunction();
-    var result = testDll.testlib();
-    console.log(result);
-}
-
 exports.TestSnark = (req, res) => {
+    /*
     (async() => {
-        var rootHash = await testDll.GenerateProof(1, 'secStr', 'randomkey');
+        var rootHash = await snarkDll.GenerateProof(1, 'secStr', 'randomkey');
         console.log(rootHash);
+        console.log(typeof(rootHash));
         (async() => {
-            var isVerified = await testDll.VerifyProof(1, 'randomkey', rootHash);
+            var isVerified = await snarkDll.VerifyProof(1, 'randomkey', rootHash);
             console.log(isVerified);
             res.send(isVerified);
         })();
+    })();
+    */
+    var userId = 1
+    var infoHash = '5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03';
+    var secStr = 'wDR25SPPYkuJuhaYXzvs';
+    SnarkGenerateProof(userId, infoHash, secStr).then(
+        (rootHash) => {
+            console.log(rootHash);
+            SnarkVerifyProof(userId, secStr, rootHash).then(
+                (isVerified) => {
+                    console.log('result: ' + isVerified);
+                }
+            )
+        }
+    )
+}
+
+async function SnarkGenerateProof(userId, infoHash, secStr) {
+    var rootHash = await snarkDll.GenerateProof(userId, infoHash, secStr);
+    console.log('Get roothash: ' + rootHash);
+
+    //update root and hasProof in redis
+    const client = redis.createClient();
+    client.on('error', (err) => console.log('Redis Client Error', err));
+    await client.connect();
+    await client.HSET(userId, {
+        root: rootHash,
+        hasProof: true,
+    });
+    client.quit();
+
+    return rootHash
+}
+
+async function SnarkVerifyProof(userId, secStr, rootHash) {
+    var isPassed = await snarkDll.VerifyProof(userId, secStr, rootHash);
+    console.log('Get result: ' + isVerified);
+
+    //update root and hasProof in redis
+    const client = redis.createClient();
+    client.on('error', (err) => console.log('Redis Client Error', err));
+    await client.connect();
+    await client.HSET(userId, {
+        hasVerified: true,
+        isPassed: isPassed
+    });
+    client.quit();
+
+    return isPassed;
+}
+
+/**
+ * Run the snark programme, and update the value in redis
+ * {
+ *  info: info Hash
+ *  hasProof: bool, true if proof generated and get the roothash
+ *  root: merkle root hash, return by C GenerateProof
+ *  hasVerified: bool, true if the verification succeed and result returned
+ *  isPassed: bool, if pass the verification
+ *  
+ * }
+ * @param {Integer} userId 
+ */
+function RunSnark(userId) {
+    console.log('Going to run snark');
+
+    //Get vals from redis
+    (async() => {
+        const client = redis.createClient();
+        client.on('error', (err) => console.log('Redis Client Error', err));
+        await client.connect();
+        client.hGetAll(userId).then(
+            (userObj) => {
+                console.log(userObj);
+                var infoHash = userObj.info;
+                var secStr = userObj.secStr;
+                console.log(typeof(infoHash) + " " + infoHash);
+                console.log(typeof(secStr) + " " + secStr);
+                SnarkGenerateProof(userId, infoHash, secStr).then(
+                    (rootHash) => {
+                        console.log(rootHash);
+                        SnarkVerifyProof(userId, secStr, rootHash).then(
+                            (isVerified) => {
+                                console.log('result: ' + isVerified);
+                            }
+                        )
+                    }
+                )
+            }
+        )
+        client.quit();
     })();
 }
 
 /**
  * Store the secret string and userId into Redis
+ * Initialize redis hashtable
  * userId: secStr
  * @param {*} req 
  * @param {*} res 
@@ -49,7 +138,12 @@ exports.StoreSecretStr = (req, res) => {
             await client.DEL(userId);
             await client.HSET(userId, {
                 secStr: secStr,
-                isScanned: false
+                isScanned: false,
+                info: '',
+                root: '',
+                hasProof: false,
+                hasVerified: false,
+                isPassed: false,
             });
             await client.expire(userId, 1800);
             client.quit();
@@ -70,6 +164,7 @@ exports.MobileScanQr = (req, res) => {
     var userId = req.query.userId;
     var status = req.query.status;
     var secStr = req.query.secStr;
+    var infoHash = req.query.info;
 
     if (status == "success") {
         (async() => {
@@ -82,7 +177,8 @@ exports.MobileScanQr = (req, res) => {
                         console.log(userObj.secStr);
                         if (userObj.secStr == secStr) {
                             await client.HSET(userId, {
-                                isScanned: true
+                                isScanned: true,
+                                info: infoHash,
                             });
                             client.quit()
                             res.send(JSON.stringify({ status: true }));
@@ -128,5 +224,7 @@ exports.index = (req, res) => {
 }
 
 exports.Result = (req, res) => {
+    console.log('ready to run snark: ' + req.query.userId);
+    RunSnark(req.query.userId);
     res.render('snarkViews/snarkResult', { content: 'snark result' });
 }

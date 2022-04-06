@@ -36,3 +36,35 @@
     align-items: center;
     justify-content: center;
 }
+
+.textArea {
+    background-color: #dce6fa;
+    padding-top: 10px;
+    padding-bottom: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.textArea h5 {
+    font-family: Courier Prime Bits, monospace;
+}
+
+.text-area-row {
+    margin-bottom: 15px;
+}
+
+#message-area {
+    border-radius: 6px;
+    text-align: center;
+    align-content: center;
+    vertical-align: middle;
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+#message-area h3 {
+    margin: 0 auto;
+    padding: 10px;
+}
