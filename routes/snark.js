@@ -35,8 +35,4 @@ router.post('/mobile-scan-qr', snarkController.MobileScanQr);
 
 router.get('/check-scan-qr-code', snarkController.CheckScanQrCode);
 
-
-//Testing URL
-router.get('/test-snark', snarkController.TestSnark);
-
 module.exports = router;

@@ -4,6 +4,32 @@
  * @param userName
  */
 
+function RunSnark () {
+    $.get('/snark/result/start-snark?userId=' + userId);
+    console.log('Snark starts');
+}
+
+function CheckUserInfo (){
+    $.get('/snark/result/check-user-info?userId='+ userId, function(data){
+        console.log(data);
+    });
+}
+
+function CheckProof () {
+    $.get('/snark/result/check-proof?userId=' + userId, function(data){
+        var proofResult = JSON.parse(data);
+        console.log(proofResult);
+        console.log(proofResult.rootHash);
+    });
+}
+
+function CheckVerification () {
+    $.get('/snark/result/check-verification?userId=' + userId, function(data){
+        console.log(JSON.parse(data));
+        return JSON.parse(data);
+    });
+}
+
 /**
  * The page will have 3 status
  * 1. loading: after loaded the userId, secStr as Hash salt, infoHash from redis
@@ -13,14 +39,14 @@
  *      if get the successful response with the verification result
  * 3. verified: after the varification pass or fail
  */
-function MessageBar () {
+function MessageBar() {
     const [status, setStatus] = React.useState('loading');
     const [isLoading, setLoading] = React.useState(true);
     const [data, setData] = React.useState([]);
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         console.log('hello');
-    },[]);
+    }, []);
 
     return (
         <div class="info-div bg-light" id="message-area">
@@ -35,42 +61,6 @@ function MessageBar () {
         </div>
     );
 }
-
-function RunSnark () {
-    $.get('/snark/result/start-snark?userId=' + userId);
-    console.log('Snark starts');
-}
-
-function CheckUserInfo (){
-    $.get('/snark/result/check-user-info?userId='+ userId, function(data){
-        console.log(data);
-    });
-}
-
-function CheckProof () {
-    $.get('/snark/result/check-proof?userId=' + userId, function(data){
-        console.log(data);
-    });
-}
-
-function CheckVerification () {
-    $.get('/snark/result/check-verification?userId=' + userId, function(data){
-        console.log(JSON.parse(data));
-        return JSON.parse(data);
-    });
-}
-
-function TestTimer () {
-
-    setInterval(function (){
-        CheckUserInfo();
-        CheckProof();
-        CheckVerification();
-    }, 1000);
-
-    RunSnark();
-}
-
 
 /**
  * Render flow control components
@@ -88,6 +78,60 @@ function StepControl() {
     );
 }
 
+function RunSnarkResult (){
+    const [isInitializing, serInitializing] = React.useState(true);
+
+    return (
+        <antd.Spin spinning={true} tip="Snark is initializing. Please wait a minute">
+                <div>
+                    <div class="info-div">
+                        <div class="row">
+                            <div class="col-12">
+                                <h5>Hash Salt</h5>
+                            </div>
+                        </div>
+                        <div class="row text-area-row">
+                            <div class="col-12">
+                                <div class='textArea'>
+                                    <h5>5891b5b5 22d5df08 6d0ff0b1 10fbd9d2</h5>
+                                    <h5>1bb4fc71 63af34d0 8286a2e8 46f6be03</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div><div class="info-div">
+                        <div class="row">
+                            <div class="col-12">
+                                <h5>Personal Information Hash</h5>
+                            </div>
+                        </div>
+                        <div class="row text-area-row">
+                            <div class="col-12">
+                                <div class='textArea'>
+                                    <h5>5891b5b5 22d5df08 6d0ff0b1 10fbd9d2</h5>
+                                    <h5>1bb4fc71 63af34d0 8286a2e8 46f6be03</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div><div class="info-div">
+                        <div class="row">
+                            <div class="col-12">
+                                <h5>Root Hash</h5>
+                            </div>
+                        </div>
+                        <div class="row text-area-row">
+                            <div class="col-12">
+                                <div class='textArea'>
+                                    <h5>5891b5b5 22d5df08 6d0ff0b1 10fbd9d2</h5>
+                                    <h5>1bb4fc71 63af34d0 8286a2e8 46f6be03</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                                 
+                </div>
+        </antd.Spin>
+    );
+}
+
 
 class App extends React.Component {
     render() {
@@ -102,60 +146,9 @@ class App extends React.Component {
                                 </div>
                             </antd.Col>
                             <antd.Col span={16} id="right-antd-col">
-                                <div>
-
-                                    <div class="info-div">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <h5>Hash Salt</h5>
-                                            </div>
-                                        </div>
-                                        <div class="row text-area-row">
-                                            <div class="col-12">
-                                                <div class='textArea'>
-                                                    <h5>5891b5b5 22d5df08 6d0ff0b1 10fbd9d2</h5>
-                                                    <h5>1bb4fc71 63af34d0 8286a2e8 46f6be03</h5>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="info-div">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <h5>Personal Information Hash</h5>
-                                            </div>
-                                        </div>
-                                        <div class="row text-area-row">
-                                            <div class="col-12">
-                                                <div class='textArea'>
-                                                    <h5>5891b5b5 22d5df08 6d0ff0b1 10fbd9d2</h5>
-                                                    <h5>1bb4fc71 63af34d0 8286a2e8 46f6be03</h5>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="info-div">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <h5>Root Hash</h5>
-                                            </div>
-                                        </div>
-                                        <div class="row text-area-row">
-                                            <div class="col-12">
-                                                <div class='textArea'>
-                                                    <h5>5891b5b5 22d5df08 6d0ff0b1 10fbd9d2</h5>
-                                                    <h5>1bb4fc71 63af34d0 8286a2e8 46f6be03</h5>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                </div>
+                                <RunSnarkResult />
                             </antd.Col>
                         </antd.Row>
-
                     </div>
                 </antd.Layout.Content>
             </antd.Layout>
@@ -164,4 +157,7 @@ class App extends React.Component {
 }
 
 ReactDOM.render(<App />, document.getElementById('content'));
-TestTimer();
+RunSnark();
+CheckUserInfo();
+CheckProof();
+CheckVerification();

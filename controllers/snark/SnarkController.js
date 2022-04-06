@@ -13,44 +13,6 @@ const snarkDll = ffi.Library(path.resolve('snark/build/src/libcertificate.so'), 
     ]
 });
 
-exports.TestSnark = (req, res) => {
-    /*
-    var userId = 1
-    var infoHash = '5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03';
-    var secStr = 'wDR25SPPYkuJuhaYXzvs';
-
-    (async() => {
-        var rootHash = await snarkDll.GenerateProof(
-            userId,
-            '5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af1',
-            'wDR25SPPYkuJuhaYXzvs');
-        console.log(rootHash);
-        console.log(typeof(rootHash));
-        (async() => {
-            var isVerified = await snarkDll.VerifyProof(1, 'wDR25SPPYkuJuhaYXzvs', rootHash);
-            console.log(isVerified);
-            res.send(isVerified);
-        })();
-    })();
-    */
-
-
-    var userId = 1
-    var infoHash = '5891b5b522d5df086d0ff0b110fbd9d2';
-    var secStr = 'wDR25SPPYkuJuhaYXzvs';
-    SnarkGenerateProof(userId, infoHash, secStr).then(
-        (rootHash) => {
-            console.log(rootHash);
-            SnarkVerifyProof(userId, secStr, rootHash).then(
-                (isPassed) => {
-                    console.log("The result is: " + isPassed);
-                }
-            )
-        }
-    )
-
-}
-
 async function SnarkGenerateProof(userId, infoHash, secStr) {
     var rootHash = await snarkDll.GenerateProof(userId, infoHash, secStr);
     console.log('Get roothash: ' + rootHash);
@@ -111,19 +73,21 @@ exports.RunSnark = (req, res) => {
                 console.log(userObj);
                 var infoHash = userObj.info;
                 var secStr = userObj.secStr;
-                console.log(typeof(infoHash) + " " + infoHash);
-                console.log(typeof(secStr) + " " + secStr);
-                SnarkGenerateProof(userId, infoHash, secStr).then(
-                    (rootHash) => {
-                        console.log(rootHash);
-                        SnarkVerifyProof(userId, secStr, rootHash).then(
-                            (isPassed) => {
-                                console.log('result: ' + isPassed);
-                                res.send(isPassed);
-                            }
-                        )
-                    }
-                )
+
+                if (userObj.hasVerified == false) {
+                    SnarkGenerateProof(userId, infoHash, secStr).then(
+                        (rootHash) => {
+                            console.log(rootHash);
+                            SnarkVerifyProof(userId, secStr, rootHash).then(
+                                () => {
+                                    res.send(JSON.stringify({ status: 'done' }));
+                                }
+                            )
+                        }
+                    )
+                } else {
+                    res.send(JSON.stringify({ status: 'done' }));
+                }
             }
         )
         client.quit();
@@ -210,10 +174,12 @@ exports.CheckVerification = (req, res) => {
             //Check whether isScanned is true
             client.hGetAll(userId).then(
                 (userObj) => {
+
                     res.send(JSON.stringify({
-                        hasVerified: userObj.hasVerified,
-                        isPassed: userObj.isPassed
+                        hasVerified: (userObj.hasVerified === 'false' ? false : true),
+                        isPassed: (userObj.isPassed === 'false' ? false : true)
                     }))
+
                 }
             );
         } catch (err) {
