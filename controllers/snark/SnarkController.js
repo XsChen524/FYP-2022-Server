@@ -224,7 +224,7 @@ exports.index = (req, res) => {
 }
 
 exports.Result = (req, res) => {
-    console.log('ready to run snark: ' + req.query.userId);
-    RunSnark(req.query.userId);
+    //console.log('ready to run snark: ' + req.query.userId);
+    //RunSnark(req.query.userId);
     res.render('snarkViews/snarkResult', { content: 'snark result' });
 }
