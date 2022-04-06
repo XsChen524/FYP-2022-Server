@@ -36,6 +36,41 @@ function MessageBar () {
     );
 }
 
+function RunSnark () {
+    $.get('/snark/result/start-snark?userId=' + userId);
+    console.log('Snark starts');
+}
+
+function CheckUserInfo (){
+    $.get('/snark/result/check-user-info?userId='+ userId, function(data){
+        console.log(data);
+    });
+}
+
+function CheckProof () {
+    $.get('/snark/result/check-proof?userId=' + userId, function(data){
+        console.log(data);
+    });
+}
+
+function CheckVerification () {
+    $.get('/snark/result/check-verification?userId=' + userId, function(data){
+        console.log(JSON.parse(data));
+        return JSON.parse(data);
+    });
+}
+
+function TestTimer () {
+
+    setInterval(function (){
+        CheckUserInfo();
+        CheckProof();
+        CheckVerification();
+    }, 1000);
+
+    RunSnark();
+}
+
 
 /**
  * Render flow control components
@@ -129,3 +164,4 @@ class App extends React.Component {
 }
 
 ReactDOM.render(<App />, document.getElementById('content'));
+TestTimer();

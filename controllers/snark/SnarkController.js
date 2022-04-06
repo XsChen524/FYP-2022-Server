@@ -136,6 +136,28 @@ exports.RunSnark = (req, res) => {
  */
 exports.CheckUserInfo = (req, res) => {
     var userId = req.query.userId;
+
+    (async() => {
+        const client = redis.createClient();
+        client.on('error', (err) => console.log('Redis Client Error', err));
+        await client.connect();
+        try {
+            //Check whether isScanned is true
+            client.hGetAll(userId).then(
+                (userObj) => {
+                    var infoHash = userObj.info;
+                    var secStr = userObj.secStr;
+                    res.send(JSON.stringify({
+                        userId: userId,
+                        secStr: secStr,
+                        info: infoHash
+                    }))
+                }
+            );
+        } catch (err) {
+            console.log(err);
+        }
+    })();
 }
 
 /**
@@ -144,6 +166,33 @@ exports.CheckUserInfo = (req, res) => {
  */
 exports.CheckProof = (req, res) => {
     var userId = req.query.userId;
+
+    (async() => {
+        const client = redis.createClient();
+        client.on('error', (err) => console.log('Redis Client Error', err));
+        await client.connect();
+        try {
+            //Check whether isScanned is true
+            client.hGetAll(userId).then(
+                (userObj) => {
+                    console.log(userObj.root);
+                    if (userObj.hasProof == 'true') {
+                        res.send(JSON.stringify({
+                            hasProof: true,
+                            rootHash: userObj.root
+                        }))
+                    } else {
+                        res.send(JSON.stringify({
+                            hasProof: false,
+                            rootHash: ''
+                        }))
+                    }
+                }
+            );
+        } catch (err) {
+            console.log(err);
+        }
+    })();
 }
 
 /**
@@ -152,6 +201,25 @@ exports.CheckProof = (req, res) => {
  */
 exports.CheckVerification = (req, res) => {
     var userId = req.query.userId;
+
+    (async() => {
+        const client = redis.createClient();
+        client.on('error', (err) => console.log('Redis Client Error', err));
+        await client.connect();
+        try {
+            //Check whether isScanned is true
+            client.hGetAll(userId).then(
+                (userObj) => {
+                    res.send(JSON.stringify({
+                        hasVerified: userObj.hasVerified,
+                        isPassed: userObj.isPassed
+                    }))
+                }
+            );
+        } catch (err) {
+            console.log(err);
+        }
+    })();
 }
 
 /**

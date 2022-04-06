@@ -21,7 +21,7 @@ router.get('/result/check-user-info', snarkController.CheckUserInfo);
  * Check whether the proof has been generated
  * @param {Integer} userId
  */
-router.get('result/check-proof', snarkController.CheckProof);
+router.get('/result/check-proof', snarkController.CheckProof);
 
 /**
  * Check whether pass the verification
@@ -35,6 +35,8 @@ router.post('/mobile-scan-qr', snarkController.MobileScanQr);
 
 router.get('/check-scan-qr-code', snarkController.CheckScanQrCode);
 
+
+//Testing URL
 router.get('/test-snark', snarkController.TestSnark);
 
 module.exports = router;
