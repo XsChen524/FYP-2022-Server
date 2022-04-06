@@ -15,7 +15,6 @@ var authController = require('./controllers/auth/AuthController');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var snarkRouter = require('./routes/snark');
-var adminRouter = require('./routes/admin');
 var apiRouter = require('./routes/api');
 
 var app = express();
@@ -143,7 +142,6 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/admin', adminRouter);
 app.use('/', indexRouter);
 
 /* Auth routers */
