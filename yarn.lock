@@ -1555,7 +1555,7 @@
     "mime-types" "~2.1.34"
     "negotiator" "0.6.3"
 
-"adminjs@^5.7.5", "adminjs@>=5.0.0":
+"adminjs@>=5.0.0":
   "integrity" "sha512-SnDgo6qwquSBl1BW5NRBj/lcKWxqhvmdVW2SGQ7BSBRZP0h7IIpOeGT14ypKZHdBtWi3tvUvaeRtIMFJv2UJYg=="
   "resolved" "https://registry.npmjs.org/adminjs/-/adminjs-5.7.6.tgz"
   "version" "5.7.6"
