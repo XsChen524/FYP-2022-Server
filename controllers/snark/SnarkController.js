@@ -3,7 +3,6 @@ var path = require('path');
 var ffi = require('ffi-napi');
 var redis = require('redis');
 var ref = require('ref-napi');
-const { info } = require('console');
 
 const snarkDll = ffi.Library(path.resolve('snark/build/src/libcertificate.so'), {
     'GenerateProof': [
@@ -16,30 +15,40 @@ const snarkDll = ffi.Library(path.resolve('snark/build/src/libcertificate.so'), 
 
 exports.TestSnark = (req, res) => {
     /*
+    var userId = 1
+    var infoHash = '5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03';
+    var secStr = 'wDR25SPPYkuJuhaYXzvs';
+
     (async() => {
-        var rootHash = await snarkDll.GenerateProof(1, 'secStr', 'randomkey');
+        var rootHash = await snarkDll.GenerateProof(
+            userId,
+            '5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af1',
+            'wDR25SPPYkuJuhaYXzvs');
         console.log(rootHash);
         console.log(typeof(rootHash));
         (async() => {
-            var isVerified = await snarkDll.VerifyProof(1, 'randomkey', rootHash);
+            var isVerified = await snarkDll.VerifyProof(1, 'wDR25SPPYkuJuhaYXzvs', rootHash);
             console.log(isVerified);
             res.send(isVerified);
         })();
     })();
     */
+
+
     var userId = 1
-    var infoHash = '5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03';
+    var infoHash = '5891b5b522d5df086d0ff0b110fbd9d2';
     var secStr = 'wDR25SPPYkuJuhaYXzvs';
     SnarkGenerateProof(userId, infoHash, secStr).then(
         (rootHash) => {
             console.log(rootHash);
             SnarkVerifyProof(userId, secStr, rootHash).then(
-                (isVerified) => {
-                    console.log('result: ' + isVerified);
+                (isPassed) => {
+                    console.log("The result is: " + isPassed);
                 }
             )
         }
     )
+
 }
 
 async function SnarkGenerateProof(userId, infoHash, secStr) {
@@ -61,7 +70,7 @@ async function SnarkGenerateProof(userId, infoHash, secStr) {
 
 async function SnarkVerifyProof(userId, secStr, rootHash) {
     var isPassed = await snarkDll.VerifyProof(userId, secStr, rootHash);
-    console.log('Get result: ' + isVerified);
+    console.log('Get result: ' + isPassed);
 
     //update root and hasProof in redis
     const client = redis.createClient();
@@ -88,7 +97,8 @@ async function SnarkVerifyProof(userId, secStr, rootHash) {
  * }
  * @param {Integer} userId 
  */
-function RunSnark(userId) {
+exports.RunSnark = (req, res) => {
+    var userId = req.query.userId;
     console.log('Going to run snark');
 
     //Get vals from redis
@@ -107,8 +117,9 @@ function RunSnark(userId) {
                     (rootHash) => {
                         console.log(rootHash);
                         SnarkVerifyProof(userId, secStr, rootHash).then(
-                            (isVerified) => {
-                                console.log('result: ' + isVerified);
+                            (isPassed) => {
+                                console.log('result: ' + isPassed);
+                                res.send(isPassed);
                             }
                         )
                     }
@@ -117,6 +128,30 @@ function RunSnark(userId) {
         )
         client.quit();
     })();
+}
+
+/**
+ * Get userId, secStr, infoHash from redis
+ * @param {Integer} userId
+ */
+exports.CheckUserInfo = (req, res) => {
+    var userId = req.query.userId;
+}
+
+/**
+ * Check whether the proof has been generated
+ * @param {Integer} userId
+ */
+exports.CheckProof = (req, res) => {
+    var userId = req.query.userId;
+}
+
+/**
+ * Check whether pass the verification
+ * @param {Integer} userId
+ */
+exports.CheckVerification = (req, res) => {
+    var userId = req.query.userId;
 }
 
 /**
@@ -224,7 +259,5 @@ exports.index = (req, res) => {
 }
 
 exports.Result = (req, res) => {
-    //console.log('ready to run snark: ' + req.query.userId);
-    //RunSnark(req.query.userId);
     res.render('snarkViews/snarkResult', { content: 'snark result' });
 }
