@@ -184,7 +184,7 @@ function RunSnarkResult (){
                             type="success"
                             showIcon
                         /> :
-                        <Alert
+                        <antd.Alert
                             message="Verification Failed"
                             description="Sorry, please try again or contact support"
                             type="error"
