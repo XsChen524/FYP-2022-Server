@@ -4,4 +4,6 @@ var router = express.Router();
 
 router.post('/mobile-scan-qr', snarkController.MobileScanQr);
 
+router.get('/check-verification', snarkController.CheckVerification);
+
 module.exports = router;

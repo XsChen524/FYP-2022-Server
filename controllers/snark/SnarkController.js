@@ -74,7 +74,7 @@ exports.RunSnark = (req, res) => {
                 var infoHash = userObj.info;
                 var secStr = userObj.secStr;
 
-                if (userObj.hasVerified == false) {
+                if (userObj.hasVerified === 'false') {
                     SnarkGenerateProof(userId, infoHash, secStr).then(
                         (rootHash) => {
                             console.log(rootHash);

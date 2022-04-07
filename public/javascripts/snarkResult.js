@@ -11,22 +11,24 @@ function RunSnark () {
 
 function CheckUserInfo (){
     $.get('/snark/result/check-user-info?userId='+ userId, function(data){
-        console.log(data);
+        var infoResult = JSON.parse(data);
+        console.log(infoResult);
+        return infoResult;
     });
 }
 
 function CheckProof () {
     $.get('/snark/result/check-proof?userId=' + userId, function(data){
         var proofResult = JSON.parse(data);
-        console.log(proofResult);
-        console.log(proofResult.rootHash);
+        return proofResult;
     });
 }
 
 function CheckVerification () {
     $.get('/snark/result/check-verification?userId=' + userId, function(data){
-        console.log(JSON.parse(data));
-        return JSON.parse(data);
+        var verificationResult = JSON.parse(data);
+        console.log(verificationResult);
+        return verificationResult;
     });
 }
 
@@ -79,55 +81,118 @@ function StepControl() {
 }
 
 function RunSnarkResult (){
-    const [isInitializing, serInitializing] = React.useState(true);
+    const [isInitializing, setInitializing] = React.useState(true);
+    const [userInfo, setUserInfo] =  React.useState([]);
+
+    const [proofLoading, setProofLoading] = React.useState(true);
+    const [proofInfo, setProofInfo] = React.useState([]);
+
+    const [verificationLoading, setVerificationLoading] = React.useState(true);
+    const [verifiedInfo, setVerifiedInfo] = React.useState([]);
+
+    React.useEffect( () => {
+        const getResult = async() => {
+            $.get('/snark/result/check-user-info?userId=' + userId, function (data) {
+                var infoResult = JSON.parse(data);
+                setUserInfo(infoResult);
+                console.log(infoResult);
+                setInitializing(false);
+            });
+            $.get('/snark/result/check-proof?userId=' + userId, function (data) {
+                var proofResult = JSON.parse(data);
+                setProofInfo(proofResult);
+                console.log(proofResult);
+                setProofLoading(false);
+            });
+            $.get('/snark/result/check-verification?userId=' + userId, function (data) {
+                var verificationResult = JSON.parse(data);
+                console.log(verificationResult);
+                setVerifiedInfo(verificationResult);
+                setVerificationLoading(false);
+            });
+        }
+        getResult();
+    },[])
 
     return (
-        <antd.Spin spinning={true} tip="Snark is initializing. Please wait a minute">
-                <div>
-                    <div class="info-div">
-                        <div class="row">
-                            <div class="col-12">
-                                <h5>Hash Salt</h5>
+        <antd.Spin spinning={isInitializing} tip="Snark is initializing. Please wait a minute">
+            <div class="info-div">
+                {isInitializing == false &&
+                    <antd.Row>
+                        <antd.Col span={24}>
+                            <h5>Hash Salt</h5>
+                        </antd.Col>
+                    </antd.Row>
+                }
+                {isInitializing == false &&
+                    <div class="row text-area-row">
+                        <div class="col-12">
+                            <div class='textArea'>
+                                <h5>
+                                    {userInfo.secStr}
+                                </h5>
                             </div>
                         </div>
-                        <div class="row text-area-row">
-                            <div class="col-12">
-                                <div class='textArea'>
-                                    <h5>5891b5b5 22d5df08 6d0ff0b1 10fbd9d2</h5>
-                                    <h5>1bb4fc71 63af34d0 8286a2e8 46f6be03</h5>
-                                </div>
+                    </div>
+                }
+            </div>
+            <div class="info-div">
+                {isInitializing == false &&
+                    <antd.Row>
+                        <antd.Col span={24}>
+                            <h5>Personal Information Hash</h5>
+                        </antd.Col>
+                    </antd.Row>
+                }
+                {isInitializing == false &&
+                    <div class="row text-area-row">
+                        <div class="col-12">
+                            <div class='textArea'>
+                                <h5>
+                                    {userInfo.info}
+                                </h5>
                             </div>
                         </div>
-                    </div><div class="info-div">
-                        <div class="row">
-                            <div class="col-12">
-                                <h5>Personal Information Hash</h5>
+                    </div>
+                }
+            </div>
+            <div class="info-div">
+                {proofLoading == false &&
+                    <div class="row">
+                        <div class="col-12">
+                            <h5>Root Hash</h5>
+                        </div>
+                    </div>
+                }
+                {proofLoading == false &&
+                    <div class="row text-area-row">
+                        <div class="col-12">
+                            <div class='textArea'>
+                                <h5>{proofInfo.rootHash}</h5>
                             </div>
                         </div>
-                        <div class="row text-area-row">
-                            <div class="col-12">
-                                <div class='textArea'>
-                                    <h5>5891b5b5 22d5df08 6d0ff0b1 10fbd9d2</h5>
-                                    <h5>1bb4fc71 63af34d0 8286a2e8 46f6be03</h5>
-                                </div>
-                            </div>
-                        </div>
-                    </div><div class="info-div">
-                        <div class="row">
-                            <div class="col-12">
-                                <h5>Root Hash</h5>
-                            </div>
-                        </div>
-                        <div class="row text-area-row">
-                            <div class="col-12">
-                                <div class='textArea'>
-                                    <h5>5891b5b5 22d5df08 6d0ff0b1 10fbd9d2</h5>
-                                    <h5>1bb4fc71 63af34d0 8286a2e8 46f6be03</h5>
-                                </div>
-                            </div>
-                        </div>
-                    </div>                                 
-                </div>
+                    </div>
+                }
+            </div>
+            <div class="info-div" id='verification-result'>
+                {verificationLoading == false &&
+                    (
+                        verifiedInfo.isPassed == true ?
+                        <antd.Alert
+                            message="Verification Passed"
+                            description="You have successfully passed Zero-Knowledge Proof"
+                            type="success"
+                            showIcon
+                        /> :
+                        <Alert
+                            message="Verification Failed"
+                            description="Sorry, please try again or contact support"
+                            type="error"
+                            showIcon
+                        />
+                    )
+                }
+            </div>                            
         </antd.Spin>
     );
 }
@@ -158,6 +223,3 @@ class App extends React.Component {
 
 ReactDOM.render(<App />, document.getElementById('content'));
 RunSnark();
-CheckUserInfo();
-CheckProof();
-CheckVerification();
