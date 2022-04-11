@@ -6,4 +6,10 @@ router.post('/mobile-scan-qr', snarkController.MobileScanQr);
 
 router.get('/check-verification', snarkController.CheckVerification);
 
+/**
+ * Check whether pass the verification
+ * @param {Integer} userId
+ */
+router.get('/check-verification', snarkController.CheckVerification);
+
 module.exports = router;
